@@ -24,6 +24,12 @@ const req = https.request(options, (res) => {
 			var version = fileName.slice(fileName.indexOf("Adapter_v") + 9, fileName.indexOf(".unitypackage"));
 			var name = fileName.slice(10, fileName.indexOf("Adapter_v"));
 
+			var regExpVersion = /[0-9]+[.]+[0-9]+[.]+[0-9]+/gm;
+			if (!regExpVersion.test(version))
+			{				
+				//TODO handle error
+			}	
+
 			if (!json[name])
 				json[name] = {};
 
