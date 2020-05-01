@@ -1,6 +1,12 @@
 # ScraperTest
  Scaper test for MadBox
- 
+
+Utilisation
+```
+$> npm install
+$> npm start
+```
+
 Le temps que vous avez passé sur ce projet.
 1h.
 
