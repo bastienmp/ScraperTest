@@ -1,46 +1,47 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
-const REQUESTED_URL = "https://dl.bintray.com/ironsource-mobile/unity-adapters/";
+const URL_IRONSOURCE_UNITYADAPTER = "https://dl.bintray.com/ironsource-mobile/unity-adapters/";
+const REGEX_IRONSOURCE_UNITYADAPTER = /IronSource(.*)Adapter_v(.*).unitypackage/;
 
-const options = {
-	uri: REQUESTED_URL,
-	transform: (body) => { 
-		return cheerio.load(body); 
-	}
-};
+async function scrapLinkFromURL(url, regex, indexNameGroup, indexVersionGroup)
+{
+	const options = {
+		uri: url,
+		transform: (body) => { 
+			return cheerio.load(body); 
+		}
+	};
 
-let json = {};
+	let json = {};
+	const $ = await rp(options);
 
-rp(options).then(($) => {
-	let links = $('a'); // get all the link in the webpage
+	//get all the links:
+	let links = $('a');
+
 	$(links).each((i, link) => {
-		let validateRex = /^IronSource+[a-zA-Z]+_v+[0-9]+[.]+[0-9]+[.]+[0-9]+.unitypackage$/gm;
-
-		let fileName = $(link).text();
-
-		if (validateRex.test(fileName))
+		let fileName = $(link).text(); //extract full filename
+		let regResults = regex.exec(fileName);
+			
+		if (regResults != null && indexVersionGroup < regResults.length && indexNameGroup < regResults.length)
 		{
-			let URL = REQUESTED_URL + fileName;
-
-			let versionReg = /[0-9]+[.]+[0-9]+[.]+[0-9]+/gm;
-			let version = versionReg.exec(fileName)[0];
-
-			let nameReg = /^IronSource([a-zA-Z]*)Adapter_v/gm;
-			let name = nameReg.exec(fileName)[1];
+			let URL = url + fileName;
+			let name = regResults[indexNameGroup];
+			let version = regResults[indexVersionGroup];
 
 			if (!json[name])
 				json[name] = {};
-	
 			json[name][version] = URL;
-
 		}
 		else
-		{
-			//TODO error
+		{				
+			//Error
+			console.error(fileName + " doesnt pass the regex " + regex + " (from: " + url + ").");
 		}
-	
 	});
+
+	return json;
+}
+
+scrapLinkFromURL(URL_IRONSOURCE_UNITYADAPTER, REGEX_IRONSOURCE_UNITYADAPTER, 1, 2).then((json) => {
 	console.log(json);
-}).catch((error) => {
-	console.error(error);
 });
