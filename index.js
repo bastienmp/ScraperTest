@@ -1,7 +1,8 @@
 const rp = require('request-promise');
 const cheerio = require('cheerio');
+
 const URL_IRONSOURCE_UNITYADAPTER = "https://dl.bintray.com/ironsource-mobile/unity-adapters/";
-const REGEX_IRONSOURCE_UNITYADAPTER = /IronSource(.*)Adapter_v(.*).unitypackage/;
+const REGEX_IRONSOURCE_UNITYADAPTER = /IronSource(.*)Adapter_v(.*).unitypackage/; //Regex which create two groups, first one for name, second one for version
 
 async function scrapLinkFromURL(url, regex, indexNameGroup, indexVersionGroup)
 {
@@ -19,9 +20,11 @@ async function scrapLinkFromURL(url, regex, indexNameGroup, indexVersionGroup)
 	let links = $('a');
 
 	$(links).each((i, link) => {
-		let fileName = $(link).text(); //extract full filename
+		//extract full filename
+		let fileName = $(link).text(); 
+
 		let regResults = regex.exec(fileName);
-			
+
 		if (regResults != null && indexVersionGroup < regResults.length && indexNameGroup < regResults.length)
 		{
 			let URL = url + fileName;
