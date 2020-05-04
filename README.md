@@ -1,5 +1,5 @@
 # ScraperTest
- Scaper test for MadBox.
+Scaper test for MadBox using Node.js.
 
 Use
 ```
